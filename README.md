@@ -4,6 +4,7 @@ There are 3 files of interest:
 - `sim.cpp`: Implements the simulation to compute the term E_inf = lim_{n \to \infty} (1/n) \E_{X, Y}[\log_2(|DD(X, Y)|)].
 - `upper.cpp`: Implements the (deterministic) upper bound on the E_inf term based on the random walk analysis.
 - `plotter.py`: Plots the outputs produced by the `sim` and `upper` programs.
+- Importantly, you should basically ignore the notebook named `Untitled.ipynb`. That's there mostly for experimentation purposes, but it's _much_ less efficient than the C++ implementations, so it's basically useless to run large simulations or computations.
 
 Below are instructions to run each of the programs above:
 - `sim.cpp`: First run the command `make` in the command line to compile all files. Then run `./exec_sim`. You'll get an error saying you need to pass certain command-line arguments. Passing those arguments correctly will make the program run, and produce (or re-write) the file `sim_output.csv`.
