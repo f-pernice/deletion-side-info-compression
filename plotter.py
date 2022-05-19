@@ -29,6 +29,7 @@ def main():
             X = vals[:, 0]
             Y = -vals[:, 1] + X + entr(X)
             plt.plot(X, Y)
+        # plt.plot(X, entr(X * (X < 0.5) + 1/2 * (X >= 0.5)))
         plt.plot(X, X*0 + 1)
         plt.show()
     elif args[-1] == '--Einf':
