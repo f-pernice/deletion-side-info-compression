@@ -13,8 +13,11 @@ double count(string a, string b)
     int n = b.length();
  
     // Create a table to store results of sub-problems
-    double lookup[m + 1][n + 1];
-    memset(lookup, 0, (m+1)*(n+1)*sizeof(double));
+    auto lookup = new double*[m + 1];
+    for (int i = 0; i <= m; i++) {
+    	lookup[i] = new double[n + 1];
+	memset(lookup[i], 0, (n+1)*sizeof(double));
+    }
  
     // If first string is empty
     for (int i = 0; i <= n; ++i)
@@ -44,8 +47,10 @@ double count(string a, string b)
                 lookup[i][j] = lookup[i - 1][j];
         }
     }
- 
-    return lookup[m][n];
+    double answer = lookup[m][n];
+    for (int i = 0; i <= m; i++) delete[] lookup[i];
+    delete[] lookup; 
+    return answer; 
 }
 
 double rand01() {
@@ -69,37 +74,49 @@ string sample_ber(int n, double d) {
 	return out;
 }
 
-double estimate_Einf(int n, double d, int nsamples) {
+double estimate_Einf(int n, double d, int nsamples, bool uncorrelated_y) {
 	double sum_vals = 0;
 	for (int i = 0; i < nsamples; i++) {
 		string x = sample_ber(n, 0.5);
-		string y = BDC(x, d);
+		string y;
+		if (!uncorrelated_y) y = BDC(x, d);
+		else y = sample_ber((int) ((1 - d) * n), 0.5);
 
-		//cout << "x = " << x <<endl;
-		//cout << "y = " << y <<endl;
 		double c = count(x, y);
-		if (c <= 0) {
+		if (!uncorrelated_y && c <= 0) {
 		       	cout << "Error: y should appear at least once in x" << endl;
 			cout << "x = " << x << endl;
 			cout << "y = " << y << endl;
 			cout << "count = " << c <<endl;
 		}
-		sum_vals += log2((double) c) / (double) n;
+		if (!uncorrelated_y) sum_vals += log2((double) c) / (double) n;
+		else sum_vals += log2((double) c + 1) / (double) n;
+
 	}
 	return sum_vals / nsamples;
+}
+
+double estimate_Einf(int n, double d, int nsamples) {
+	return estimate_Einf(n, d, nsamples, false);
 }
 
 // Driver code
 int main(int argc, char* argv[])
 {
-	if (argc != 4) {
+	if (!(argc == 4 || argc == 5)) {
 		cout << "Please provide a number of values of d to plot (first arg)," << endl
-		     << "a value of n (second arg), and a number of iterations (third arg)" << endl;
+		     << "a value of n (second arg), and a number of iterations (third arg)." << endl
+		     << "You can also optionally specify a --uncorrelated flag to sample X and Y independently" << endl;
 		return 0;
 	}
 	int d_num = atoi(argv[1]);
 	int n = atoi(argv[2]);
 	int iters = atoi(argv[3]);
+	bool uncorrelated = false;
+	if (argc == 5) {
+		assert(strcmp(argv[4], "--uncorrelated") == 0);
+		uncorrelated = true;
+	}
 	double d_incr = 1 / (double) (d_num - 1);
 	
 	double d_vals[d_num];
@@ -107,11 +124,13 @@ int main(int argc, char* argv[])
 	int i = 0;
 	for (double d = 0; i < d_num; d += d_incr, i++) {
 		d_vals[i] = d;
-		double estimate = estimate_Einf(n, d, iters);
+		double estimate = estimate_Einf(n, d, iters, uncorrelated);
 		E_inf_vals[i] = estimate;
 	}
 	ofstream file;
-	file.open("sim_output.csv");
+	if (!uncorrelated) file.open("sim_output.csv");
+	else file.open("sim_output_uncorrelated.csv");
+
 	for (int j = 0; j < d_num; j++) {
 		file << d_vals[j] << "," << E_inf_vals[j] << endl;
 	}

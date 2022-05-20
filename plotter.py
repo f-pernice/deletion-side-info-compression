@@ -31,16 +31,16 @@ def main():
             plt.plot(X, Y)
         # plt.plot(X, entr(X * (X < 0.5) + 1/2 * (X >= 0.5)))
         plt.plot(X, X*0 + 1)
-        plt.show()
     elif args[-1] == '--Einf':
         for file in args[1:-1]:
             vals = pd.read_csv(file).values
             X = vals[:, 0]
             Y = vals[:, 1]
-            plt.plot(X, Y)
-        plt.show()
+            plt.plot(X, Y, label=file[:file.find('.')])
     else:
         print("Invalid mode")
+    # plt.legend()
+    plt.show()
 
 if __name__ == '__main__':
     main()

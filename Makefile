@@ -4,7 +4,7 @@ TARGET2 = upper
 
 CXXBASE = g++
 CXX = $(CXXBASE) -std=c++17
-CXXFLAGS = -ggdb -O -Wall -Werror
+CXXFLAGS = -g -ggdb -O -Wall -Werror
 
 CPPFLAGS =
 LIBS =
