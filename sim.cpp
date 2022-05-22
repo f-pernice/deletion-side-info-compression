@@ -7,16 +7,16 @@ using namespace std;
 // Iterative DP function to find the number of times
 // the second string occurs in the first string,
 // whether continuous or discontinuous
-double count(string a, string b)
+long double count(string a, string b)
 {
     int m = a.length();
     int n = b.length();
  
     // Create a table to store results of sub-problems
-    auto lookup = new double*[m + 1];
+    auto lookup = new long double*[m + 1];
     for (int i = 0; i <= m; i++) {
-    	lookup[i] = new double[n + 1];
-	memset(lookup[i], 0, (n+1)*sizeof(double));
+    	lookup[i] = new long double[n + 1];
+	memset(lookup[i], 0, (n+1)*sizeof(long double));
     }
  
     // If first string is empty
@@ -47,7 +47,7 @@ double count(string a, string b)
                 lookup[i][j] = lookup[i - 1][j];
         }
     }
-    double answer = lookup[m][n];
+    long double answer = lookup[m][n];
     for (int i = 0; i <= m; i++) delete[] lookup[i];
     delete[] lookup; 
     return answer; 
@@ -82,15 +82,15 @@ double estimate_Einf(int n, double d, int nsamples, bool uncorrelated_y) {
 		if (!uncorrelated_y) y = BDC(x, d);
 		else y = sample_ber((int) ((1 - d) * n), 0.5);
 
-		double c = count(x, y);
+		long double c = count(x, y);
 		if (!uncorrelated_y && c <= 0) {
 		       	cout << "Error: y should appear at least once in x" << endl;
 			cout << "x = " << x << endl;
 			cout << "y = " << y << endl;
 			cout << "count = " << c <<endl;
 		}
-		if (!uncorrelated_y) sum_vals += log2((double) c) / (double) n;
-		else sum_vals += log2((double) c + 1) / (double) n;
+		if (!uncorrelated_y) sum_vals += log2(c) / (double) n;
+		else sum_vals += log2(c + 1) / (double) n;
 
 	}
 	return sum_vals / nsamples;
