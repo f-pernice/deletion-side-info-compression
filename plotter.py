@@ -29,7 +29,7 @@ def main():
             X = vals[:, 0]
             Y = -vals[:, 1] + X + entr(X)
             plt.plot(X, Y)
-        # plt.plot(X, entr(X * (X < 0.5) + 1/2 * (X >= 0.5)))
+        plt.plot(X, entr(X * (X < 0.5) + 1/2 * (X >= 0.5)))
         plt.plot(X, X*0 + 1)
     elif args[-1] == '--Einf':
         for file in args[1:-1]:
@@ -37,9 +37,10 @@ def main():
             X = vals[:, 0]
             Y = vals[:, 1]
             plt.plot(X, Y, label=file[:file.find('.')])
+        plt.plot(X, X * (X <= 1/2) + (entr(X) + X - 1) * (X > 1/2), label="h(d) approx")
     else:
         print("Invalid mode")
-    # plt.legend()
+    plt.legend()
     plt.show()
 
 if __name__ == '__main__':
