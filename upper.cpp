@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
 	}
 	ofstream file;
 	if (!sym) file.open("upper_output.csv");
-	else  file.open("upper_output_sym.csv");
+	else  file.open("upper_output_symmetric.csv");
 	for (int j = 0; j < d_num; j++) {
 		file << d_vals[j] << "," << E_inf_vals[j] << endl;
 	}
