@@ -128,8 +128,8 @@ int main(int argc, char* argv[])
 		E_inf_vals[i] = estimate;
 	}
 	ofstream file;
-	if (!uncorrelated) file.open("sim_output.csv");
-	else file.open("sim_output_uncorrelated.csv");
+	if (!uncorrelated) file.open("sim_output_n" + to_string(n) + ".csv");
+	else file.open("sim_output_uncorrelated_n" + to_string(n) + ".csv");
 
 	for (int j = 0; j < d_num; j++) {
 		file << d_vals[j] << "," << E_inf_vals[j] << endl;

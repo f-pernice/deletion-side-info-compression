@@ -19,17 +19,23 @@ def main():
     args = sys.argv
 
     if len(args) < 3:
-        print("Please provide (1) a list of files to print, followed by \n\
+        print("Please provide (1) a list of files to print, or the keyword \n\
+              \"best-bounds\" for a selection of pre-recorded bounds, followed by \n\
                (2) a mode to print in: either --Einf for just that term, \n\
                    or --full for the minimum compression rate plot.")
         return 0
+    if len(args) == 3 and args[1] == "best-bounds":
+        selection = ["my_heuristic_lower.csv", "my_heuristic_upper.csv", 
+                "sim_output_n10000.csv", "upper_output.csv", "upper_output_symmetric_n2000.csv",
+                "sim_output_n1000.csv", "upper_output_symmetric_n100.csv", "upper_output_symmetric_n101.csv"]
+        args = [args[0]] + selection + [args[-1]]
     if args[-1] == '--full':
         for file in args[1:-1]:
             vals = pd.read_csv(file).values
             X = vals[:, 0]
             Y = -vals[:, 1] + X + entr(X)
-            plt.plot(X, Y)
-        plt.plot(X, entr(X * (X < 0.5) + 1/2 * (X >= 0.5)))
+            plt.plot(X, Y, label=file[:file.find('.')])
+        plt.plot(X, entr(X * (X < 0.5) + 1/2 * (X >= 0.5)), label="h(d) upper bound")
         plt.plot(X, X*0 + 1)
     elif args[-1] == '--Einf':
         for file in args[1:-1]:
@@ -37,7 +43,7 @@ def main():
             X = vals[:, 0]
             Y = vals[:, 1]
             plt.plot(X, Y, label=file[:file.find('.')])
-        plt.plot(X, X * (X <= 1/2) + (entr(X) + X - 1) * (X > 1/2), label="h(d) approx")
+        plt.plot(X, X * (X <= 1/2) + (entr(X) + X - 1) * (X > 1/2), label="h(d) lower bound")
     else:
         print("Invalid mode")
     plt.legend()
