@@ -149,8 +149,8 @@ int main(int argc, char* argv[])
 	int i = 0;
 	for (double d = 0; i < d_num; d += d_incr, i++) {
 		d_vals[i] = d;
+		cout << "On iteration " << i << " of " << d_num << "." << endl;
 		if (is_3D) {
-			cout << "Computing 3D upper bound..." << endl;
 			E_inf_vals[i] = get_nth_upper_3D(n, d);
 
 		}

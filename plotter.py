@@ -27,7 +27,8 @@ def main():
     if len(args) == 3 and args[1] == "best-bounds":
         selection = ["my_heuristic_lower.csv", "my_heuristic_upper.csv", 
                 "sim_output_n10000.csv", "upper_output.csv", "upper_output_symmetric_n2000.csv",
-                "sim_output_n1000.csv", "upper_output_symmetric_n100.csv", "upper_output_symmetric_n101.csv"]
+                "upper_output_3D_n1000.csv"]
+#        selection = ["sim_output_n10000_low_iters.csv", "upper_output.csv"]
         args = [args[0]] + selection + [args[-1]]
     if args[-1] == '--full':
         for file in args[1:-1]:
@@ -42,6 +43,7 @@ def main():
             vals = pd.read_csv(file).values
             X = vals[:, 0]
             Y = vals[:, 1]
+#            plt.plot(X, Y)
             plt.plot(X, Y, label=file[:file.find('.')])
         plt.plot(X, X * (X <= 1/2) + (entr(X) + X - 1) * (X > 1/2), label="h(d) lower bound")
     else:

@@ -3,6 +3,7 @@
 #include <cmath>
 #include <fstream>
 using namespace std;
+#define EPS 1e-10
  
 // Iterative DP function to find the number of times
 // the second string occurs in the first string,
@@ -53,11 +54,11 @@ long double count(string a, string b)
     return answer; 
 }
 
-double rand01() {
-	return ((double) rand()) / RAND_MAX;
+long double rand01() {
+	return ((long double) rand()) / RAND_MAX;
 }
 
-string BDC(string x, double d) {
+string BDC(string x, long double d) {
 	string y = "";
 	for (char c : x){
 		if (rand01() < 1 - d) 
@@ -66,7 +67,22 @@ string BDC(string x, double d) {
 	return y;
 }
 
-string sample_ber(int n, double d) {
+string BDC_fixed_string_start(string x, long double d) {
+	if (abs(d) < EPS) return x;
+	if (abs(1-d) < EPS) return "";
+	string y = "";
+	int incr = ceil(1/(1-d));
+//	cout << "incr = " << incr << endl;
+	int dels = 0;
+	for (int i = 0; i < x.length() && dels < d * x.length(); i++) {
+		if (i % incr == 0) y += x[i];
+		else dels++;
+	}
+//	cout << "y = " + y << endl;
+	return y;
+}
+
+string sample_ber(int n, long double d) {
 	string out = "";
 	for (int i = 0; i < n; i++) {
 		out += rand01() < d ? "1" : "0";
@@ -74,12 +90,13 @@ string sample_ber(int n, double d) {
 	return out;
 }
 
-double estimate_Einf(int n, double d, int nsamples, bool uncorrelated_y) {
-	double sum_vals = 0;
+long double estimate_Einf(int n, long double d, int nsamples, bool uncorrelated_y) {
+	long double sum_vals = 0;
 	for (int i = 0; i < nsamples; i++) {
 		string x = sample_ber(n, 0.5);
 		string y;
-		if (!uncorrelated_y) y = BDC(x, d);
+//		if (!uncorrelated_y) y = BDC(x, d);
+		if (!uncorrelated_y) y = BDC_fixed_string_start(x, d);
 		else y = sample_ber((int) ((1 - d) * n), 0.5);
 
 		long double c = count(x, y);
@@ -89,14 +106,14 @@ double estimate_Einf(int n, double d, int nsamples, bool uncorrelated_y) {
 			cout << "y = " << y << endl;
 			cout << "count = " << c <<endl;
 		}
-		if (!uncorrelated_y) sum_vals += log2(c) / (double) n;
-		else sum_vals += log2(c + 1) / (double) n;
+		if (!uncorrelated_y) sum_vals += log2(c) / (long double) n;
+		else sum_vals += log2(c + 1) / (long double) n;
 
 	}
 	return sum_vals / nsamples;
 }
 
-double estimate_Einf(int n, double d, int nsamples) {
+long double estimate_Einf(int n, long double d, int nsamples) {
 	return estimate_Einf(n, d, nsamples, false);
 }
 
@@ -124,7 +141,8 @@ int main(int argc, char* argv[])
 	int i = 0;
 	for (double d = 0; i < d_num; d += d_incr, i++) {
 		d_vals[i] = d;
-		double estimate = estimate_Einf(n, d, iters, uncorrelated);
+		cout << "On d-value number " << i << " / " << d_num << "." << endl;
+		double estimate = (double) estimate_Einf(n, (long double) d, iters, uncorrelated);
 		E_inf_vals[i] = estimate;
 	}
 	ofstream file;
