@@ -14,11 +14,11 @@ void tset(long double **table, int i, int j, long double val, int len) {
 }
 
 long double tget3D(long double ***table, int k, int j, int u, int len) {
-	return table[len/ 2 + k][j][u];
+	return table[j][len/ 2 + k][u];
 }
 
 void tset3D(long double ***table, int k, int j, int u, long double val, int len) {
-	table[len/ 2 + k][j][u] = val;
+	table[j][len/ 2 + k][u] = val;
 }
 
 void update(long double **table, int n, int k, long double d, bool sym, int len) {
@@ -57,13 +57,13 @@ void update3D(long double ***table, int j, int k, int u, long double d, int spac
 		space_range_len); 
 }
 
-double entr(double p) {
-	const double eps = 1e-20;
+long double entr(long double p) {
+	const long double eps = 1e-20;
 	if (abs(p) < eps || abs(1 - p) < eps) return 0;
 	return -p * log2(p) - (1 - p) * log2(1 - p);
 }
 
-double get_nth_upper(int N, double d, bool sym) {
+long double get_nth_upper(int N, long double d, bool sym) {
 	int len = 2 * N + 3;
 	long double **table = new long double *[len];
 	for (int i = 0; i < len; i++) {
@@ -88,40 +88,47 @@ double get_nth_upper(int N, double d, bool sym) {
 	else return entr(d) + log2(res) / (N - 1);
 }
 
-double get_nth_upper_3D(int N, double d) {
-	int space_range_len = 2 * N + 3;
-	int time_range_len = N;
-	int weight_range_len = N;
-	long double ***table = new long double **[space_range_len];
-	for (int i = 0; i < space_range_len; i++) {
-		long double **time_frame = new long double *[time_range_len];
-		for (int j = 0; j < time_range_len; j++) {
-			long double *weight_frame = new long double[weight_range_len];
-			for (int k = 0; k < weight_range_len; k++)
-				weight_frame[k] = 0;
-			time_frame[j] = weight_frame;
-		}
-		table[i] = time_frame;
+void init_timeslice(long double ***table, int j, int space_range_len, int weight_range_len) {
+	long double **time_slice = new long double *[space_range_len];
+	for (int k = 0; k < space_range_len; k++) {
+		long double *weight_frame = new long double[weight_range_len];
+		for (int u = 0; u < weight_range_len; u++)
+			weight_frame[u] = 0;
+		time_slice[k] = weight_frame;
 	}
+	table[j] = time_slice;
+}
+
+void delete_timeslice(long double ***table, int j, int space_range_len) {
+	for (int k = 0; k < space_range_len; k++) {
+		delete[] table[j][k];
+	}
+	delete[] table[j];
+}
+
+long double get_nth_upper_3D(int N, long double d) {
+	int space_range_len = 2 * (N+1) + 3;
+	int time_range_len = N+2;
+	int weight_range_len = N+1;
+	long double ***table = new long double **[time_range_len];
+	init_timeslice(table, 0, space_range_len, weight_range_len);
+	init_timeslice(table, 1, space_range_len, weight_range_len);
 	tset3D(table, 0, 0, 0, 1, space_range_len);
 
-	for (int j = 1; j < N; j++) { // iterate forward in time
-		for (int k = -N; k <= N; k++) { // range over space
-			for (int u = 0; u < weight_range_len; u++) // range over weight
+	for (int j = 1; j <= N; j++) { // iterate forward in time
+		for (int k = -j; k <= j; k++) { // range over space
+			for (int u = 0; u <= j; u++) // range over weight
 				update3D(table, j, k, u, d, space_range_len);
 		}
+		// Only keep alive the needed time slices, to save memory.
+		delete_timeslice(table, j - 1, space_range_len);
+		init_timeslice(table, j + 1, space_range_len, weight_range_len);
 	}
-	//cout << "d = " << d << ", n = " << N-1 << ", dn = " << (int) d*(N-1) << endl;
-	long double res = tget3D(table, 0, N - 1, (int) (d * (N-1)), space_range_len);
-	
-	for (int i = 0; i < space_range_len; i++) {
-		for (int j = 0; j < time_range_len; j++) {
-			delete[] table[i][j];
-		}
-		delete[] table[i];
-	}
+	delete_timeslice(table, N, space_range_len);
+	delete_timeslice(table, N + 1, space_range_len);
+	long double res = tget3D(table, 0, N, (int) (d * N), space_range_len);	
 	delete[] table;
-	return entr(d) + log2(res) / (N-1);
+	return entr(d) + log2(res) / N;
 }
 
 // Driver code
@@ -136,18 +143,18 @@ int main(int argc, char* argv[])
 	}
 	int d_num = atoi(argv[1]);
 	int n = atoi(argv[2]);
-	double d_incr = 1 / (double) (d_num - 1);
+	long double d_incr = 1 / (double) (d_num - 1);
 	bool sym = false; 
 	bool is_3D = false;
 	if (argc == 4 && strcmp(argv[3], "--3D") == 0) is_3D = true;
 	if (argc == 4 && strcmp(argv[3], "--sym") == 0) sym = true;
 	assert(argc == 3 || (strcmp(argv[3], "--sym") == 0 || strcmp(argv[3], "--3D") == 0));
 
-	double d_vals[d_num];
-	double E_inf_vals[d_num];
+	long double d_vals[d_num];
+	long double E_inf_vals[d_num];
 
 	int i = 0;
-	for (double d = 0; i < d_num; d += d_incr, i++) {
+	for (long double d = 0; i < d_num; d += d_incr, i++) {
 		d_vals[i] = d;
 		cout << "On iteration " << i << " of " << d_num << "." << endl;
 		if (is_3D) {
@@ -155,6 +162,7 @@ int main(int argc, char* argv[])
 
 		}
 		else E_inf_vals[i] = get_nth_upper(n, d, sym);
+		cout << "Finished iteration " << i << ". Value is " << E_inf_vals[i] << "." << endl << endl;
 	}
 	ofstream file;
 	if (is_3D) {

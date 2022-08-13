@@ -134,15 +134,15 @@ int main(int argc, char* argv[])
 		assert(strcmp(argv[4], "--uncorrelated") == 0);
 		uncorrelated = true;
 	}
-	double d_incr = 1 / (double) (d_num - 1);
+	long double d_incr = 1 / (long double) (d_num - 1);
 	
-	double d_vals[d_num];
-	double E_inf_vals[d_num];
+	long double d_vals[d_num];
+	long double E_inf_vals[d_num];
 	int i = 0;
-	for (double d = 0; i < d_num; d += d_incr, i++) {
+	for (long double d = 0; i < d_num; d += d_incr, i++) {
 		d_vals[i] = d;
 		cout << "On d-value number " << i << " / " << d_num << "." << endl;
-		double estimate = (double) estimate_Einf(n, (long double) d, iters, uncorrelated);
+		long double estimate = estimate_Einf(n, d, iters, uncorrelated);
 		E_inf_vals[i] = estimate;
 	}
 	ofstream file;
