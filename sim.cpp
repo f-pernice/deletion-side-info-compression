@@ -14,10 +14,11 @@ long double count(string a, string b)
     int n = b.length();
  
     // Create a table to store results of sub-problems
-    auto lookup = new long double*[m + 1];
+    long double **lookup = new long double*[m + 1];
     for (int i = 0; i <= m; i++) {
     	lookup[i] = new long double[n + 1];
-	memset(lookup[i], 0, (n+1)*sizeof(long double));
+	for (int j = 0; j <= n; j++)
+		lookup[i][j] = 0;
     }
  
     // If first string is empty
@@ -51,6 +52,7 @@ long double count(string a, string b)
     long double answer = lookup[m][n];
     for (int i = 0; i <= m; i++) delete[] lookup[i];
     delete[] lookup; 
+    cout << "count = " << answer << endl;
     return answer; 
 }
 
@@ -66,7 +68,7 @@ string BDC(string x, long double d) {
 	}
 	return y;
 }
-
+/*
 string BDC_fixed_string_start(string x, long double d) {
 	if (abs(d) < EPS) return x;
 	if (abs(1-d) < EPS) return "";
@@ -80,7 +82,7 @@ string BDC_fixed_string_start(string x, long double d) {
 	}
 //	cout << "y = " + y << endl;
 	return y;
-}
+}*/
 
 string sample_ber(int n, long double d) {
 	string out = "";
@@ -95,8 +97,8 @@ long double estimate_Einf(int n, long double d, int nsamples, bool uncorrelated_
 	for (int i = 0; i < nsamples; i++) {
 		string x = sample_ber(n, 0.5);
 		string y;
-//		if (!uncorrelated_y) y = BDC(x, d);
-		if (!uncorrelated_y) y = BDC_fixed_string_start(x, d);
+		if (!uncorrelated_y) y = BDC(x, d);
+//		if (!uncorrelated_y) y = BDC_fixed_string_start(x, d);
 		else y = sample_ber((int) ((1 - d) * n), 0.5);
 
 		long double c = count(x, y);
@@ -106,8 +108,8 @@ long double estimate_Einf(int n, long double d, int nsamples, bool uncorrelated_
 			cout << "y = " << y << endl;
 			cout << "count = " << c <<endl;
 		}
-		if (!uncorrelated_y) sum_vals += log2(c) / (long double) n;
-		else sum_vals += log2(c + 1) / (long double) n;
+		if (!uncorrelated_y) sum_vals += log2l(c) / (long double) n;
+		else sum_vals += log2l(c + 1) / (long double) n;
 
 	}
 	return sum_vals / nsamples;
@@ -140,10 +142,12 @@ int main(int argc, char* argv[])
 	long double E_inf_vals[d_num];
 	int i = 0;
 	for (long double d = 0; i < d_num; d += d_incr, i++) {
+		if (d <= 0.5) continue;
 		d_vals[i] = d;
 		cout << "On d-value number " << i << " / " << d_num << "." << endl;
 		long double estimate = estimate_Einf(n, d, iters, uncorrelated);
 		E_inf_vals[i] = estimate;
+		cout << "Finished d-value " << i << ". Output was " << E_inf_vals[i] << "." << endl;
 	}
 	ofstream file;
 	if (!uncorrelated) file.open("sim_output_n" + to_string(n) + ".csv");

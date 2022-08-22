@@ -46,6 +46,8 @@ def main():
 #            plt.plot(X, Y)
             plt.plot(X, Y, label=file[:file.find('.')])
         plt.plot(X, X * (X <= 1/2) + (entr(X) + X - 1) * (X > 1/2), label="h(d) lower bound")
+        indep_bd = -(1-X) + entr(X)
+        plt.plot(X, indep_bd * (indep_bd >= 0), label="indep-UB") 
     else:
         print("Invalid mode")
     plt.legend()
