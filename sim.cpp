@@ -1,5 +1,6 @@
 #include <iostream>
-#include <string>
+#include <string.h>
+#include <assert.h>
 #include <cmath>
 #include <fstream>
 using namespace std;

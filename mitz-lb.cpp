@@ -1,5 +1,6 @@
 #include <iostream>
-#include <string>
+#include <string.h>
+#include <assert.h>
 #include <cmath>
 #include <vector>
 #include <fstream>
@@ -96,7 +97,7 @@ int main(int argc, char* argv[]) {
 
 	ofstream f;
 	f.open("mitz-lb_" + to_string(kmax) + "_" + to_string(imax) + "_" + to_string(zmax) + "_" + to_string(rmax) + "_" + to_string(smax) + "_" + to_string(dvals) + ".csv");
-	for (int i = 0; i < d_values.size(); i++) {
+	for (int i = 0; i < (int) d_values.size(); i++) {
 		f << d_values[i] << "," << Y_values[i] << endl;
 	}
 	f.close();

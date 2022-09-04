@@ -3,7 +3,7 @@ TARGET = sim
 TARGET2 = upper
 TARGET3 = mitz-lb
 
-CXXBASE = g++
+CXXBASE = g++-9
 CXX = $(CXXBASE) -std=c++17
 CXXFLAGS = -g -ggdb -O -Wall -Werror
 
