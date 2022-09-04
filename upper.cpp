@@ -91,9 +91,9 @@ long double get_nth_upper(int N, long double d, bool sym) {
 
 void init_timeslice(long double ***table, int j, int space_range_len, int weight_range_len) {
 	long double **time_slice = new long double *[space_range_len];
-	for (int k = 0; k < space_range_len; k++) {
+	for (int k = 0; k <= space_range_len; k++) {
 		long double *weight_frame = new long double[weight_range_len];
-		for (int u = 0; u < weight_range_len; u++)
+		for (int u = 0; u <= weight_range_len; u++)
 			weight_frame[u] = 0;
 		time_slice[k] = weight_frame;
 	}
@@ -125,6 +125,7 @@ long double get_nth_upper_3D(int N, long double d) {
 		delete_timeslice(table, j - 1, space_range_len);
 		init_timeslice(table, j + 1, space_range_len, weight_range_len);
 	}
+	//for (int j = 0; j<=N;j++) delete_timeslice(table, j, space_range_len);
 	delete_timeslice(table, N, space_range_len);
 	delete_timeslice(table, N + 1, space_range_len);
 	long double res = tget3D(table, 0, N, (int) (d * N), space_range_len);	
